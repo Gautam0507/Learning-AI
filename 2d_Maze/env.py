@@ -5,23 +5,34 @@ from IPython import display
 import matplotlib.pylab as plt
 from typing import Tuple
 from gym import spaces
+import random
 
 
 class Grid(gym.Env):
-
-
-    def __init__(self, size=4):
+    def __init__(self, size=4, type= "random"):
         self.row = size
         self.col = size
-        self.startpos = (0, 0)
-        self.state = self.startpos
-        self.goal = (self.row - 1, self.col - 1)
+        self.type = type
         self.action_space = gym.spaces.Discrete(4)
         self.observation_space = spaces.MultiDiscrete([size, size])
+        # Making sure self.state and self.goal are not in the same place
+        if self.type == "fixed":
+            self.state = (0, 0)
+            self.goal = (self.row - 1, self.col - 1)
+        elif self.type == "random":
+            while True:
+                self.state = (random.randint(0, self.row - 1),
+                            random.randint(0, self.col - 1))
+                self.goal = (random.randint(0, self.row - 1),
+                            random.randint(0, self.col - 1))
+                if self.state != self.goal: 
+                    break
 
+        self.startpos = self.state
+        
     def reset(self):
         self.current_pos = self.startpos
-        return np.array(self.current_pos)
+        return np.array((self.current_pos, self.goal))
 
     def step(self, action: int):
 
@@ -30,14 +41,13 @@ class Grid(gym.Env):
         done = self.state == self.goal
         info = {}
         return self.state, reward, done, info
-    
+
     def simulate_step(self, state, action):
-        reward = self.compute_reward(state,action)
-        next_state = self._get_next_state(state,action)
+        reward = self.compute_reward(state, action)
+        next_state = self._get_next_state(state, action)
         done = next_state == self.goal
         info = {}
         return next_state, reward, done, info
-
 
     def compute_reward(self, state, action):
         if state == self.goal:
@@ -58,19 +68,18 @@ class Grid(gym.Env):
             raise ValueError("Action value not supported:", action)
         if next_state in self.observation_space:
             return next_state
-        else: 
+        else:
             return state
-        
 
-def test_agent(env: gym.Env, policy: callable, epsidoes:int = 10)-> None:
+
+def test_agent(env: gym.Env, policy: callable, epsidoes: int = 10) -> None:
     for epidode in range(epsidoes):
         agent_pos = env.reset()
         done = False
 
-        while not done: 
+        while not done:
             p = policy(agent_pos)
-            action = np.random.choice(4, p = p)
+            action = np.random.choice(4, p=p)
 
             next_state, _, done, _ = env.step(action)
             agent_pos = next_state
-    
