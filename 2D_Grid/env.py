@@ -2,6 +2,7 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 import pygame
+import matplotlib.pyplot as plt
 
 
 class Grid_World(gym.Env):
@@ -13,7 +14,7 @@ class Grid_World(gym.Env):
         self.clock = None  # reference to the clock that is used
         self.render_mode = render_mode  # pygame or rgb array
 
-        # We have 4 actions corresponding to 'up', 'left', 'down', 'right'
+        # We have 4 actions corresponding to 'keft', 'up', 'right', 'down'
         self.action_space = spaces.Discrete(4)
 
         # Defining the observation space
@@ -32,7 +33,7 @@ class Grid_World(gym.Env):
             self.target = (size - 1, size - 1)
         # When the type is random the postions of the agent and the target are randomized
         elif self.type == "random":
-            while True:
+            while True:  # Cycle random positions as long as start and target are not the same
                 self.start_position = self.observation_space.sample()
                 self.target = self.observation_space.sample()
                 if not (np.array_equal(self.start_position, self.target)):
@@ -55,14 +56,14 @@ class Grid_World(gym.Env):
         # Computing the value of done by ckecking is agent pos == target pos
         done = np.array_equal(self.agent, self.target)
         reward = 1 if done else 0  # 1 if agent reaches goal else gets a 0
-        info = []
+        info = []  # Any extra information to be given back
 
         if self.render_mode == "human":
             self._render_frame()
 
         return self.agent, reward, done, info
 
-    def render(self): 
+    def render(self):
         return self._render_frame()
 
     def _render_frame(self):
@@ -102,23 +103,24 @@ class Grid_World(gym.Env):
                 (pix_square_size * x, self.window_size),
                 width=3,
             )
-
+        # Pygame render updates 
         if self.render_mode == "human":
             self.window.blit(canvas, canvas.get_rect())
             pygame.event.pump()
             pygame.display.update()
 
             self.clock.tick(4)
+            return None
 
         # else rgb array
         else:
             return np.transpose(np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2))
-    
-    def py_init(self): # Mainly for running it multiple times after closing the window
+
+    def py_init(self): # Used running it multiple times after closing the window
         self.window = None
         self.clock = None
 
-    def close(self):# Finally closes the opened pygame window
+    def close(self):  # Finally closes the opened pygame window
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
