@@ -63,6 +63,20 @@ class Grid_World(gym.Env):
 
         return self.agent, reward, done, info
 
+    def simulate_step(self, state, action):
+        #getting the direction to add to the postion if action is taken
+        direction = self.action_to_direction[action]
+        #calculating the next step
+        next_state = np.clip(state + direction, 0, self.size - 1)
+        done = np.array_equal(self.agent, self.target)
+        reward = 1 if done else 0
+        info = []
+
+        if self.render_mode == "human":
+            self._render_frame()
+
+        return next_state, reward, done, info
+
     def render(self):
         return self._render_frame()
 
@@ -103,7 +117,7 @@ class Grid_World(gym.Env):
                 (pix_square_size * x, self.window_size),
                 width=3,
             )
-        # Pygame render updates 
+        # Pygame render updates
         if self.render_mode == "human":
             self.window.blit(canvas, canvas.get_rect())
             pygame.event.pump()
@@ -116,7 +130,7 @@ class Grid_World(gym.Env):
         else:
             return np.transpose(np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2))
 
-    def py_init(self): # Used running it multiple times after closing the window
+    def py_init(self):  # Used running it multiple times after closing the window
         self.window = None
         self.clock = None
 
