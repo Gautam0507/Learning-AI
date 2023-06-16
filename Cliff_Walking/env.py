@@ -48,7 +48,7 @@ class CliffWalking(gym.Env):
         direction = self.action_to_direction[action]
         next_state = [0, 0]
         next_state[0] = np.clip(state[0] + direction[0],
-                                0,3)
+                                0, 3)
         next_state[1] = np.clip(state[1] + direction[1],
                                 0, 11)
         return next_state
@@ -116,7 +116,7 @@ class CliffWalking(gym.Env):
             pygame.draw.line(canvas, (0, 0, 0), (self.square_size * x, 0),
                              (self.square_size * x, self.window_size[0]), width=3)
         for x in range(5):
-            pygame.draw.line(canvas, 0, (0, self.square_size * x),
+            pygame.draw.line(canvas, (0, 0, 0), (0, self.square_size * x),
                              (self.window_size[0], self.square_size * x), 3)
         if self.render_mode == 'human':
             self.window.blit(canvas, canvas.get_rect())
@@ -127,6 +127,7 @@ class CliffWalking(gym.Env):
             return None
         else:
             return np.transpose(np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2))
+
     def pygame_init(self):
         self.window = None
         self.clock = None
