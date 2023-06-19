@@ -68,7 +68,7 @@ class Grid_World(gym.Env):
         direction = self.action_to_direction[action]
         #calculating the next step
         next_state = np.clip(state + direction, 0, self.size - 1)
-        done = np.array_equal(self.agent, self.target)
+        done = np.array_equal(state, self.target)
         reward = 1 if done else 0
         info = []
 
