@@ -67,6 +67,9 @@ class SimpleGridWorld(gym.Env):
         display.display(plt.gcf())
         display.clear_output(wait=True)
 
+    def render(self):
+        return self._render_frame()
+
     def test_agent(self, policy, episodes):
         for episode in range(1, episodes+1):
             done = False
@@ -75,9 +78,6 @@ class SimpleGridWorld(gym.Env):
                 action = policy(state)
                 state, reward, done = self.step(action)
                 self.render()
-
-    def render(self):
-        return self._render_frame()
 
 
 if __name__ == "__main__":
